@@ -30,7 +30,7 @@
                     <div>
                         <img src="{{ url_for('static', filename='images/' + image[0]) }}" alt="Image for {{ item[1] }}">
                         <label for="image_{{ loop.index }}">Upload new image:</label>
-                        <input type="file" id="image_{{ loop.index }}" name="image_{{ loop.index }}">
+                        <input type="file" id="image_{{ loop.index }}" name="{{ loop.index }}">
                     </div>
                     {% endfor %}
                 </div>

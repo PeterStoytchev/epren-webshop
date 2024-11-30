@@ -21,8 +21,9 @@ def admin_details_item(item_id):
     cursor = get_cursor()
 
     item = cursor.execute('SELECT id, title, price, quantity, description FROM items WHERE id = ?', (item_id,)).fetchone()
+    images = cursor.execute('SELECT image_name FROM images WHERE item_id = ?', (item_id,)).fetchall()
 
-    return render_template("admin_item.html", item=item)
+    return render_template("admin_item.html", item=item, images=images)
 
 
 @app.route('/api/item_update/<int:item_id>', methods=["POST"])
@@ -45,8 +46,17 @@ def admin_update_item(item_id):
         flash('Invalid price or quantity.', 'error')
         return redirect(url_for('admin_item_details', item_id=item_id))
 
-
     cursor.execute('''UPDATE items SET title = ?, price = ?, quantity = ?, description = ? WHERE id = ?''', (title, price, quantity, description, item_id))
+
+    for file_key in request.files:
+        image_file = request.files[file_key]
+        if image_file:
+            #TODO (perf): Refactor with executemany so that we dont send a request every iteration
+            original_name = cursor.execute('SELECT image_name FROM images WHERE slot = ? AND item_id = ?', (file_key, item_id,)).fetchone()[0]
+            
+            #TODO (func): resize the image to a predefined standard, and convert to VP9 codec
+            image_file.save(f'static/images/{original_name}')  # Save the file
+    
     cursor.connection.commit()
 
     flash('Item updated successfully!', 'success')

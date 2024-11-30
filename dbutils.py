@@ -1,4 +1,6 @@
+import shutil
 import sqlite3, logging
+import uuid
 
 DATABASE = 'data.db'
 
@@ -31,7 +33,7 @@ def db_setup():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             item_id INTEGER NOT NULL,
             image_name TEXT NOT NULL,
-            is_primary INTEGER NOT NULL CHECK (is_primary IN (0, 1)),
+            slot INTEGER NOT NULL,
             FOREIGN KEY (item_id) REFERENCES items (id) ON DELETE CASCADE
         )
     ''')
@@ -50,22 +52,28 @@ def db_setup():
 
     cursor.execute('SELECT COUNT(*) FROM images')
     if cursor.fetchone()[0] == 0:
+        new_names = []
+        for i in range(9):
+            new_name = f"{str(uuid.uuid4())}.png"
+            shutil.copyfile("static/images/default.png", f"static/images/{new_name}")
+            new_names.append(new_name)
+        
         images = [
             # Item 1
-            (1, "item1_primary.jpg", 1),  # Primary image
-            (1, "item1_alt1.jpg", 0),
-            (1, "item1_alt2.jpg", 0),
+            (1, new_names[0], 1),
+            (1, new_names[1], 2),
+            (1, new_names[2], 3),
             # Item 2
-            (2, "item2_primary.jpg", 1),  # Primary image
-            (2, "item2_alt1.jpg", 0),
+            (2, new_names[3], 1),
+            (2, new_names[4], 2),
             # Item 3
-            (3, "item3_primary.jpg", 1),  # Primary image
-            (3, "item3_alt1.jpg", 0),
-            (3, "item3_alt2.jpg", 0),
+            (3, new_names[5], 1),
+            (3, new_names[6], 2),
+            (3, new_names[7], 3),
             # Item 4
-            (4, "item4_primary.jpg", 1),  # Primary image
+            (4, new_names[8], 1),
         ]
-        cursor.executemany('INSERT INTO images (item_id, image_name, is_primary) VALUES (?, ?, ?)', images)
+        cursor.executemany('INSERT INTO images (item_id, image_name, slot) VALUES (?, ?, ?)', images)
 
     lg.info("Database seeded with initial data.")
 
