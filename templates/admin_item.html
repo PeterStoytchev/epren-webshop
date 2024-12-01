@@ -8,7 +8,27 @@
 </head>
 <body>
     <div class="container">
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+        <div>
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <a href="{{ url_for('admin_item_list') }}">Back to Item List</a> 
+        <br>
+
         <form action="{{ url_for('admin_update_item', item_id=item[0]) }}" method="POST" enctype="multipart/form-data">
+            <button type="submit" class="positive-button">Save Changes</button>
+            <button type="button" class="negative-button" onclick="confirmDelete()">Delete Item</button>
+        
+            <br>
+            <br>
             <div class="item-details">
                 <h1>Edit Item: {{ item[1] }}</h1>  <!-- item[1] is the title -->
                 
@@ -22,25 +42,23 @@
                 <input type="number" id="quantity" name="quantity" value="{{ item[3] }}" required>  <!-- item[3] is the quantity -->
 
                 <label for="description">Description</label>
-                <textarea id="description" name="description">{{ item[4] or '' }}</textarea>  <!-- item[4] is the description -->
+                <textarea id="description" name="description" required>{{ item[4] or '' }}</textarea>  <!-- item[4] is the description -->
 
                 <h2>Images</h2>
                 <div class="images-grid">
                     {% for image in images %}
                     <div>
                         <img src="{{ url_for('static', filename='images/' + image[0]) }}" alt="Image for {{ item[1] }}">
-                        <label for="image_{{ loop.index }}">Upload new image:</label>
+                        <label for="image_{{ loop.index }}">Modify image</label>
                         <input type="file" id="image_{{ loop.index }}" name="{{ loop.index }}">
+                        <button type="button" class="negative-button" onclick="confirmDeleteImage({{ item[0] }}, {{ loop.index }})">Delete Image</button>
                     </div>
                     {% endfor %}
                 </div>
 
-                <button type="submit" class="positive-button">Save Changes</button>
-                <button type="button" class="negative-button" onclick="confirmDelete()">Delete Item</button>
+               
             </div>
         </form>
-
-        <a href="{{ url_for('admin_item_list') }}" class="back-button">Back to Item List</a>
     </div>
 
     <script>
@@ -49,6 +67,13 @@
                 window.location.href = "{{ url_for('admin_delete_item', item_id=item[0]) }}";
             }
         }
+
+        async function confirmDeleteImage(item, slot) {
+            if (confirm("Are you sure you want to delete this image?")) {
+                window.location.href = `/admin/image_delete/${item}/${slot}`;
+            }
+        }
+
     </script>
 </body>
 </html>

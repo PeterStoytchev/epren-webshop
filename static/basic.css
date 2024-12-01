@@ -5,6 +5,35 @@ body {
     background-color: #f4f4f4; /* Single background color for the entire page */
 }
 
+button {
+    cursor: pointer;
+    margin-top: 20px;
+    display: inline-block;
+    padding: 10px 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+.positive-button {
+    background-color: #007BFF;
+}
+
+.negative-button {
+    background-color: #cd0707;
+}
+
+.negative-button:hover {
+    background-color: #950606;
+}
+
+.positive-button:hover {
+    background-color: #0056b3;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -20,10 +49,18 @@ th {
     background-color: #f4f4f4;
 }
 
+textarea { 
+    resize: none;
+}
+
 a {
     text-decoration: none;
     color: #007BFF;
     font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 .container {
@@ -33,10 +70,6 @@ a {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-h1, h2 {
-    color: #333;
 }
 
 .item-details {
@@ -81,36 +114,6 @@ h1, h2 {
     height: auto;
     border-radius: 5px;
     border: 1px solid #ddd;
-}
-
-.positive-button {
-    margin-top: 20px;
-    display: inline-block;
-    padding: 10px 15px;
-    background-color: #007BFF;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.negative-button {
-    margin-top: 20px;
-    display: inline-block;
-    padding: 10px 15px;
-    background-color: #cd0707;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.negative-button:hover {
-    background-color: #950606;
-}
-
-.positive-button:hover {
-    background-color: #0056b3;
 }
 
 .flash-message {
