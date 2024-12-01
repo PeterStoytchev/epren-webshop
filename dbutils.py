@@ -10,6 +10,7 @@ def get_cursor():
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     #conn.row_factory = sqlite3.Row  # Enable access to columns by name
+    conn.execute('PRAGMA foreign_keys = ON')  # Enable foreign key constraints
     return conn
 
 def db_setup():

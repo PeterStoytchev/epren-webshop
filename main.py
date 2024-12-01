@@ -115,9 +115,24 @@ def admin_add_item():
 @app.route('/admin/item_update/<int:item_id>', methods=["GET"])
 def admin_delete_item(item_id):
     logging.info(f"Deleting item with id: {item_id}")
+    cursor = get_cursor()
+
+    images = cursor.execute('SELECT image_name FROM images WHERE item_id = ?', (item_id,)).fetchall()
+    for image in images:
+        os.remove(f'static/images/{image[0]}')
+
+    cursor.execute('DELETE FROM items WHERE id = ?', (item_id,))
+    cursor.connection.commit()
+
     flash('Item deleted successfully!', 'success')
     return redirect(url_for('admin_item_list'))
 
+
+@app.route('/admin/image_delete/<int:item_id>/<int:slot>', methods=['GET'])
+def admin_delete_image(item_id, slot):
+    logging.info(f"Deleting image with ids: {item_id} {slot}")
+    flash('Image deleted successfully!', 'success')
+    return redirect(url_for('admin_details_item', item_id=item_id))
 
 if __name__ == "__main__":
     db_setup()
