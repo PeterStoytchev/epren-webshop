@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Item List</title>
-    <link rel='stylesheet' type='text/css' media='screen' href='/static/basic.css'>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='basic.css') }}">
     <style>
         a:hover {
             text-decoration: underline;
@@ -12,6 +12,8 @@
     </style>
 </head>
 <body>
+    <div class="container">
+    
     {% with messages = get_flashed_messages(with_categories=True) %}
     {% if messages %}
     <div>
@@ -46,5 +48,10 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <a href="{{ url_for('admin_add_item') }}">
+        <button class="positive-button">Add New Item</button>
+    </a>
+    </div>
 </body>
 </html>

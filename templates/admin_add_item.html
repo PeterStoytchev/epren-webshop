@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Item</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}">
+</head>
+<body>
+    <div class="container">
+
+    <div class="item-details">
+        <h1>Add New Item</h1>
+        <form method="POST" action="{{ url_for('admin_add_item') }}" enctype="multipart/form-data">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required><br>
+            
+            <label for="price">Price:</label>
+            <input type="text" id="price" name="price" required><br>
+            
+            <label for="quantity">Quantity:</label>
+            <input type="text" id="quantity" name="quantity" required><br>
+            
+            <label for="description">Description:</label>
+            <textarea id="description" name="description"></textarea><br>
+            
+            <label for="images">Images:</label>
+            <div class="image-uploads">
+            </div>
+            <button type="button" id="add-image-button" class="positive-button">Add Image</button>
+            <script>
+                document.getElementById('add-image-button').addEventListener('click', function() {
+                    const imageUploadsDiv = document.querySelector('.image-uploads');
+                    const imageCount = imageUploadsDiv.querySelectorAll('input[type="file"]').length + 1;
+                    const newImageLabel = document.createElement('label');
+                    newImageLabel.setAttribute('for', 'image' + imageCount);
+                    newImageLabel.textContent = 'Image ' + imageCount + ':';
+                    
+                    const newImageInput = document.createElement('input');
+                    newImageInput.setAttribute('type', 'file');
+                    newImageInput.setAttribute('id', 'image' + imageCount);
+                    newImageInput.setAttribute('name', imageCount);
+                    
+                    imageUploadsDiv.appendChild(newImageLabel);
+                    imageUploadsDiv.appendChild(newImageInput);
+                    imageUploadsDiv.appendChild(document.createElement('br'));
+                });
+            </script>
+            
+            <button type="submit" class="positive-button">Add Item</button>
+        </form>
+    </div>
+    </div>
+</body>
+</html>

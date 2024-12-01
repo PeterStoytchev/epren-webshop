@@ -13,8 +13,6 @@ def get_db_connection():
     return conn
 
 def db_setup():
-    lg = logging.getLogger()
-
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -75,7 +73,7 @@ def db_setup():
         ]
         cursor.executemany('INSERT INTO images (item_id, image_name, slot) VALUES (?, ?, ?)', images)
 
-    lg.info("Database seeded with initial data.")
+    logging.info("Database seeded with initial data.")
 
     conn.commit()
     conn.close()
