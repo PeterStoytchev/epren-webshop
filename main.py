@@ -98,7 +98,7 @@ def admin_add_item():
 
     return render_template('admin_add_item.html')
 
-@app.route('/admin/item_update/<int:item_id>', methods=["GET"])
+@app.route('/admin/item_delete/<int:item_id>', methods=["GET"])
 def admin_delete_item(item_id):
     logging.info(f"Deleting item with id: {item_id}")
 
@@ -123,6 +123,86 @@ def admin_delete_image(item_id, slot):
     
     flash('Image deleted successfully!', 'success')
     return redirect(url_for('admin_details_item', item_id=item_id))
+
+
+@app.route("/admin/order_list", methods=["GET"])
+def admin_order_list():
+    with get_cursor() as cursor:
+        cursor.execute('SELECT id, title, price, quantity FROM orders')
+        orders = cursor.fetchall()
+
+    return render_template("admin_order_list.html", orders=orders)
+
+@app.route('/admin/order_details/<int:order_id>', methods=["GET"])
+def admin_details_order(order_id):
+    with get_cursor() as cursor:
+        order = cursor.execute('SELECT id, title, price, quantity, description FROM orders WHERE id = ?', (order_id,)).fetchone()
+    
+    return render_template("admin_order.html", order=order)
+
+@app.route('/admin/order_update/<int:order_id>', methods=["POST"])
+def admin_update_order(order_id):
+    title = request.form.get('title', '').strip()
+    price = request.form.get('price', '').strip()
+    quantity = request.form.get('quantity', '').strip()
+    description = request.form.get('description', '').strip()
+
+    if not title or not price or not quantity:
+        flash('Title, price, and quantity are required.', 'error')
+        return redirect(url_for('admin_order_details', order_id=order_id))
+        
+    try:
+        price = float(price)
+        quantity = int(quantity)
+    except ValueError:
+        flash('Invalid price or quantity.', 'error')
+        return redirect(url_for('admin_order_details', order_id=order_id))
+
+    with get_cursor() as cursor:
+        cursor.execute('''UPDATE orders SET title = ?, price = ?, quantity = ?, description = ? WHERE id = ?''', (title, price, quantity, description, order_id))
+    
+    flash('order updated successfully!', 'success')
+
+    return redirect(url_for('admin_details_order', order_id=order_id))
+
+@app.route('/admin/order_add', methods=['POST', 'GET'])
+def admin_add_order():
+    if request.method == 'POST':
+        title = request.form['title']
+        price = request.form['price']
+        quantity = request.form['quantity']
+        description = request.form['description']
+
+        if not title or not price or not quantity:
+            flash('Title, price, and quantity are required.', 'error')
+            return redirect(url_for('admin_add_order'))
+
+        try:
+            price = float(price)
+            quantity = int(quantity)
+        except ValueError:
+            flash('Invalid price or quantity.', 'error')
+            return redirect(url_for('admin_add_order'))
+
+        with get_cursor() as cursor:
+            cursor.execute('''
+                INSERT INTO orders (title, price, quantity, description) VALUES (?, ?, ?, ?)
+            ''', (title, price, quantity, description))
+
+        flash('New order added successfully!', 'success')
+        return redirect(url_for('admin_order_list'))
+
+    return render_template('admin_add_order.html')
+
+@app.route('/admin/order_delete/<int:order_id>', methods=["GET"])
+def admin_delete_order(order_id):
+    logging.info(f"Deleting order with id: {order_id}")
+
+    with get_cursor() as cursor:
+        cursor.execute('DELETE FROM orders WHERE id = ?', (order_id,))
+
+    flash('order deleted successfully!', 'success')
+    return redirect(url_for('admin_order_list'))
 
 if __name__ == "__main__":
     db_setup()

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New order</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}">
+</head>
+<body>
+    <div class="container">
+
+    <div class="order-details">
+        <h1>Add new order</h1>
+        <form method="POST" action="{{ url_for('admin_add_order') }}" enctype="multipart/form-data">
+            <label for="customer">Customer:</label>
+            <input type="text" id="customer" name="customer" required><br>
+            
+            <label for="total">Total:</label>
+            <input type="number" id="total" name="total" required><br>
+            
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea><br>
+            
+            <button type="submit" class="positive-button">Add order</button>
+        </form>
+    </div>
+    </div>
+</body>
+</html>

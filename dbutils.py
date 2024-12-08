@@ -47,6 +47,15 @@ def db_setup():
             )
         ''')
 
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS orders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                customer_id INTEGER NOT NULL,
+                total REAL NOT NULL,
+                description TEXT NOT NULL
+            )
+        ''')
+
         # Seed the database with some example data if there is none (only for development)
         cursor.execute('SELECT COUNT(*) FROM items')
         if cursor.fetchone()[0] == 0:
@@ -83,5 +92,17 @@ def db_setup():
                 (4, new_names[8], 1),
             ]
             cursor.executemany('INSERT INTO images (item_id, image_name, slot) VALUES (?, ?, ?)', images)
+
+        cursor.execute('SELECT COUNT(*) FROM orders')
+        if cursor.fetchone()[0] == 0:
+            cursor.executemany('''
+                INSERT INTO orders (customer_id, total, description) VALUES (?, ?, ?)
+            ''', [
+                (0, 10.99, "This is order 1"),
+                (0, 15.49, "This is order 2"),
+                (0, 7.25, "This is order 3"),
+                (0, 12.00, "This is order 4")
+            ])
+
 
         logging.info("Database seeded with initial data.")
