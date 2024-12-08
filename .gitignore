@@ -1,5 +1,7 @@
 # Custom
 *.db
+*.png
+!default.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

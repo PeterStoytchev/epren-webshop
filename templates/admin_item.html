@@ -49,19 +49,39 @@
                     {% for image in images %}
                     <div>
                         <img src="{{ url_for('static', filename='images/' + image[0]) }}" alt="Image for {{ item[1] }}">
-                        <label for="image_{{ loop.index }}">Modify image</label>
-                        <input type="file" id="image_{{ loop.index }}" name="{{ loop.index }}">
-                        <button type="button" class="negative-button" onclick="confirmDeleteImage({{ item[0] }}, {{ loop.index }})">Delete Image</button>
+                        <label for="image_{{ image[1] }}">Modify image</label>
+                        <input type="file" id="image_{{ image[1] }}" name="{{ image[1] }}">
+                        <button type="button" class="negative-button" onclick="confirmDeleteImage({{ item[0] }}, {{ image[1] }})">Delete Image</button>
                     </div>
                     {% endfor %}
                 </div>
 
-               
+                <div class="image-uploads">
+                </div>
+                <button type="button" id="add-image-button" class="positive-button">Add Image</button>
             </div>
+            <button type="submit" class="positive-button">Save Changes</button>
         </form>
     </div>
 
     <script>
+        document.getElementById('add-image-button').addEventListener('click', function() {
+            const imageUploadsDiv = document.querySelector('.image-uploads');
+            const imageCount = {{ next_image_slot }};
+            const newImageLabel = document.createElement('label');
+            newImageLabel.setAttribute('for', 'image' + imageCount);
+            newImageLabel.textContent = 'Image ' + imageCount + ':';
+            
+            const newImageInput = document.createElement('input');
+            newImageInput.setAttribute('type', 'file');
+            newImageInput.setAttribute('id', 'image' + imageCount);
+            newImageInput.setAttribute('name', imageCount);
+            
+            imageUploadsDiv.appendChild(newImageLabel);
+            imageUploadsDiv.appendChild(newImageInput);
+            imageUploadsDiv.appendChild(document.createElement('br'));
+        });
+
         async function confirmDelete() {
             if (confirm("Are you sure you want to delete this item?")) {
                 window.location.href = "{{ url_for('admin_delete_item', item_id=item[0]) }}";

@@ -7,6 +7,15 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__, )
 app.secret_key = 'your_secret_key'
 
+def save_new_images(item_id, files, cursor):
+    for file_key in files:
+        image_file = files[file_key]
+        if image_file:
+            image_name = f"{str(uuid.uuid4())}.png"
+            cursor.execute('''INSERT INTO images (item_id, image_name, slot) VALUES (?, ?, ?)''', (item_id, image_name, file_key))
+            #TODO (func): resize the image to a predefined standard, and convert to VP9 codec
+            image_file.save(f'static/images/{image_name}')  # Save the file
+
 @app.route('/favicon.ico')
 def favicon():
     return send_file("static/images/favicon.ico", mimetype='image/vnd.microsoft.icon')
@@ -23,9 +32,10 @@ def admin_item_list():
 def admin_details_item(item_id):
     with get_cursor() as cursor:
         item = cursor.execute('SELECT id, title, price, quantity, description FROM items WHERE id = ?', (item_id,)).fetchone()
-        images = cursor.execute('SELECT image_name FROM images WHERE item_id = ?', (item_id,)).fetchall()
+        images = cursor.execute('SELECT image_name, slot FROM images WHERE item_id = ? ORDER BY slot ASC', (item_id,)).fetchall()
+        next_image_slot = cursor.execute('SELECT slot FROM images WHERE item_id = ? ORDER BY slot DESC LIMIT 1', (item_id,)).fetchone()[0] + 1
     
-    return render_template("admin_item.html", item=item, images=images)
+    return render_template("admin_item.html", item=item, images=images, next_image_slot=next_image_slot)
 
 
 @app.route('/admin/item_update/<int:item_id>', methods=["POST"])
@@ -49,14 +59,7 @@ def admin_update_item(item_id):
 
     with get_cursor() as cursor:
         cursor.execute('''UPDATE items SET title = ?, price = ?, quantity = ?, description = ? WHERE id = ?''', (title, price, quantity, description, item_id))
-
-        for file_key in request.files:
-            image_file = request.files[file_key]
-            if image_file:
-                original_name = cursor.execute('SELECT image_name FROM images WHERE slot = ? AND item_id = ?', (file_key, item_id,)).fetchone()[0]
-                
-                #TODO (func): resize the image to a predefined standard, and convert to VP9 codec
-                image_file.save(f'static/images/{original_name}')  # Save the file
+        save_new_images(item_id, request.files, cursor)
     
     flash('Item updated successfully!', 'success')
 
@@ -88,17 +91,7 @@ def admin_add_item():
 
 
             item_id = cursor.execute('SELECT last_insert_rowid()').fetchone()[0]
-            for file_key in request.files:
-                image_file = request.files[file_key]
-                if image_file:
-                    image_name = f"{str(uuid.uuid4())}.png"
-
-                    cursor.execute('''
-                        INSERT INTO images (item_id, image_name, slot) VALUES (?, ?, ?)
-                    ''', (item_id, image_name, file_key))
-
-                    #TODO (func): resize the image to a predefined standard, and convert to VP9 codec
-                    image_file.save(f'static/images/{image_name}')  # Save the file
+            save_new_images(item_id, request.files, cursor)
 
         flash('New item added successfully!', 'success')
         return redirect(url_for('admin_item_list'))
