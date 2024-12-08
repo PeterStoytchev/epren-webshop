@@ -98,10 +98,10 @@ def db_setup():
             cursor.executemany('''
                 INSERT INTO orders (customer_id, total, description) VALUES (?, ?, ?)
             ''', [
-                (0, 10.99, "This is order 1"),
-                (0, 15.49, "This is order 2"),
-                (0, 7.25, "This is order 3"),
-                (0, 12.00, "This is order 4")
+                (0, 19.99, "This is order 1"),
+                (0, 99.49, "This is order 2"),
+                (0, 106.25, "This is order 3"),
+                (0, 123.00, "This is order 4")
             ])
 
 

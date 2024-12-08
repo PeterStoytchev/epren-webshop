@@ -72,29 +72,29 @@ a:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.item-details {
+.generic-detail {
     margin-bottom: 20px;
 }
 
-.item-details h1 {
+.generic-detail h1 {
     margin: 0 0 10px;
     font-size: 24px;
 }
 
-.item-details p {
+.generic-detail p {
     margin: 5px 0;
 }
 
-.item-details label {
+.generic-detail label {
     display: block;
     margin: 10px 0 5px;
     font-weight: bold;
 }
 
-.item-details input[type="text"],
-.item-details input[type="number"],
-.item-details input[type="file"],
-.item-details textarea {
+.generic-detail input[type="text"],
+.generic-detail input[type="number"],
+.generic-detail input[type="file"],
+.generic-detail textarea {
     width: 100%;
     padding: 8px;
     margin: 5px 0;

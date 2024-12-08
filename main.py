@@ -48,14 +48,14 @@ def admin_update_item(item_id):
 
     if not title or not price or not quantity:
         flash('Title, price, and quantity are required.', 'error')
-        return redirect(url_for('admin_item_details', item_id=item_id))
+        return redirect(url_for('admin_item_list', item_id=item_id))
         
     try:
         price = float(price)
         quantity = int(quantity)
     except ValueError:
         flash('Invalid price or quantity.', 'error')
-        return redirect(url_for('admin_item_details', item_id=item_id))
+        return redirect(url_for('admin_item_list', item_id=item_id))
 
     with get_cursor() as cursor:
         cursor.execute('''UPDATE items SET title = ?, price = ?, quantity = ?, description = ? WHERE id = ?''', (title, price, quantity, description, item_id))
@@ -128,7 +128,8 @@ def admin_delete_image(item_id, slot):
 @app.route("/admin/order_list", methods=["GET"])
 def admin_order_list():
     with get_cursor() as cursor:
-        cursor.execute('SELECT id, title, price, quantity FROM orders')
+        #TODO: Use customer_id to get customer name from customers table
+        cursor.execute('SELECT id, customer_id, total, description FROM orders')
         orders = cursor.fetchall()
 
     return render_template("admin_order_list.html", orders=orders)
@@ -136,32 +137,30 @@ def admin_order_list():
 @app.route('/admin/order_details/<int:order_id>', methods=["GET"])
 def admin_details_order(order_id):
     with get_cursor() as cursor:
-        order = cursor.execute('SELECT id, title, price, quantity, description FROM orders WHERE id = ?', (order_id,)).fetchone()
+        order = cursor.execute('SELECT id, customer_id, total, description FROM orders WHERE id = ?', (order_id,)).fetchone()
     
     return render_template("admin_order.html", order=order)
 
 @app.route('/admin/order_update/<int:order_id>', methods=["POST"])
 def admin_update_order(order_id):
-    title = request.form.get('title', '').strip()
-    price = request.form.get('price', '').strip()
-    quantity = request.form.get('quantity', '').strip()
+    customer = request.form.get('customer', '').strip()
+    total = request.form.get('total', '').strip()
     description = request.form.get('description', '').strip()
 
-    if not title or not price or not quantity:
-        flash('Title, price, and quantity are required.', 'error')
-        return redirect(url_for('admin_order_details', order_id=order_id))
+    if not customer or not total or not description:
+        flash('Customer, total and description.', 'error')
+        return redirect(url_for('admin_order_list', order_id=order_id))
         
     try:
-        price = float(price)
-        quantity = int(quantity)
+        total = float(total)
     except ValueError:
-        flash('Invalid price or quantity.', 'error')
-        return redirect(url_for('admin_order_details', order_id=order_id))
+        flash('Invalid price.', 'error')
+        return redirect(url_for('admin_order_list', order_id=order_id))
 
     with get_cursor() as cursor:
-        cursor.execute('''UPDATE orders SET title = ?, price = ?, quantity = ?, description = ? WHERE id = ?''', (title, price, quantity, description, order_id))
+        cursor.execute('''UPDATE orders SET customer_id = ?, total = ?, description = ? WHERE id = ?''', (customer, total, description, order_id))
     
-    flash('order updated successfully!', 'success')
+    flash('Order updated successfully!', 'success')
 
     return redirect(url_for('admin_details_order', order_id=order_id))
 
@@ -201,7 +200,7 @@ def admin_delete_order(order_id):
     with get_cursor() as cursor:
         cursor.execute('DELETE FROM orders WHERE id = ?', (order_id,))
 
-    flash('order deleted successfully!', 'success')
+    flash('Order deleted successfully!', 'success')
     return redirect(url_for('admin_order_list'))
 
 if __name__ == "__main__":
