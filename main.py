@@ -16,6 +16,7 @@ def save_new_images(item_id, files, cursor):
             #TODO (func): resize the image to a predefined standard, and convert to VP9 codec
             image_file.save(f'static/images/{image_name}')  # Save the file
 
+
 @app.route('/favicon.ico')
 def favicon():
     return send_file("static/images/favicon.ico", mimetype='image/vnd.microsoft.icon')
@@ -129,7 +130,7 @@ def admin_delete_image(item_id, slot):
 def admin_order_list():
     with get_cursor() as cursor:
         #TODO: Use customer_id to get customer name from customers table
-        cursor.execute('SELECT id, customer_id, total, description FROM orders')
+        cursor.execute('SELECT o.id, o.customer_id, SUM(oi.quantity * p.price) as total, o.description FROM orders o JOIN orders_items oi ON o.id = oi.order_id JOIN items p ON oi.item_id = p.id GROUP BY o.id')
         orders = cursor.fetchall()
 
     return render_template("admin_order_list.html", orders=orders)
@@ -137,33 +138,24 @@ def admin_order_list():
 @app.route('/admin/order_details/<int:order_id>', methods=["GET"])
 def admin_details_order(order_id):
     with get_cursor() as cursor:
-        order = cursor.execute('SELECT id, customer_id, total, description FROM orders WHERE id = ?', (order_id,)).fetchone()
+        cursor.execute('SELECT o.id, o.customer_id, SUM(oi.quantity * p.price) as total, o.description FROM orders o JOIN orders_items oi ON o.id = oi.order_id JOIN items p ON oi.item_id = p.id WHERE o.id = ?', (order_id,))
+        order = cursor.fetchone()
     
     return render_template("admin_order.html", order=order)
 
 @app.route('/admin/order_update/<int:order_id>', methods=["POST"])
 def admin_update_order(order_id):
     customer = request.form.get('customer', '').strip()
-    total = request.form.get('total', '').strip()
     description = request.form.get('description', '').strip()
 
-    if not customer or not total or not description:
-        flash('Customer, total and description.', 'error')
-        return redirect(url_for('admin_order_list', order_id=order_id))
-        
-    try:
-        total = float(total)
-    except ValueError:
-        flash('Invalid price.', 'error')
-        return redirect(url_for('admin_order_list', order_id=order_id))
-
     with get_cursor() as cursor:
-        cursor.execute('''UPDATE orders SET customer_id = ?, total = ?, description = ? WHERE id = ?''', (customer, total, description, order_id))
+        cursor.execute('''UPDATE orders SET customer_id = ?, description = ? WHERE id = ?''', (customer, description, order_id))
     
     flash('Order updated successfully!', 'success')
 
     return redirect(url_for('admin_details_order', order_id=order_id))
 
+#TODO: Update the schema to fit orders and orders_items tables
 @app.route('/admin/order_add', methods=['POST', 'GET'])
 def admin_add_order():
     if request.method == 'POST':
