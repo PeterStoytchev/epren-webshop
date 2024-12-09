@@ -32,14 +32,10 @@
             <div class="generic-detail">
                 <h1>Edit order: {{ order[0] }}</h1>  <!-- order[1] is the title -->
                 
-                <label for="customer">Customer</label>
-                <input type="text" id="customer" name="customer" value="{{ order[1] }}" required>
-
+                <label for="customer">Customer: {{ order[1] }}</label>
                 <label for="total">Total: {{ order[2] }}</label> <!-- order[2] is the total -->
 
-                <label for="description">Description</label>
-                <textarea id="description" name="description" required>{{ order[3] or '' }}</textarea>  <!-- order[4] is the description -->
-
+                <label for="description">Description: {{ order[3] or '' }}</label>
             </div>
             <button type="submit" class="positive-button">Save Changes</button>
         </form>

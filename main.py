@@ -145,12 +145,7 @@ def admin_details_order(order_id):
 
 @app.route('/admin/order_update/<int:order_id>', methods=["POST"])
 def admin_update_order(order_id):
-    customer = request.form.get('customer', '').strip()
-    description = request.form.get('description', '').strip()
-
-    with get_cursor() as cursor:
-        cursor.execute('''UPDATE orders SET customer_id = ?, description = ? WHERE id = ?''', (customer, description, order_id))
-    
+    #TODO: To be replaced with logic to handle updates to the orders in the item
     flash('Order updated successfully!', 'success')
 
     return redirect(url_for('admin_details_order', order_id=order_id))
