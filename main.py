@@ -140,8 +140,10 @@ def admin_details_order(order_id):
     with get_cursor() as cursor:
         cursor.execute('SELECT o.id, o.customer_id, SUM(oi.quantity * p.price) as total, o.description FROM orders o JOIN orders_items oi ON o.id = oi.order_id JOIN items p ON oi.item_id = p.id WHERE o.id = ?', (order_id,))
         order = cursor.fetchone()
+
+        ordered_items = cursor.execute('SELECT p.title, oi.quantity, p.price FROM orders_items oi JOIN items p ON oi.item_id = p.id WHERE oi.order_id = ?', (order_id,)).fetchall()
     
-    return render_template("admin_order.html", order=order)
+    return render_template("admin_order.html", order=order, ordered_items=ordered_items)
 
 @app.route('/admin/order_update/<int:order_id>', methods=["POST"])
 def admin_update_order(order_id):

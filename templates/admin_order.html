@@ -32,10 +32,45 @@
             <div class="generic-detail">
                 <h1>Edit order: {{ order[0] }}</h1>  <!-- order[1] is the title -->
                 
-                <label for="customer">Customer: {{ order[1] }}</label>
-                <label for="total">Total: {{ order[2] }}</label> <!-- order[2] is the total -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr>
+                                <td><label for="customer">{{ order[1] }}</label></td>
+                                <td><label for="total">{{ order[2] }}</label></td> <!-- order[2] is the total -->
+                                <td><label for="description">{{ order[3] or '' }}</label></td>
+                            </tr>
+                    </tbody>
+                </table>
+                <br>
 
-                <label for="description">Description: {{ order[3] or '' }}</label>
+                <h1>Items</h1>  <!-- order[1] is the title -->
+
+                <br>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for orderd_item in ordered_items %}
+                            <tr>
+                                <td>{{ orderd_item[0] }}</td>
+                                <td>{{ orderd_item[1] }}</td>
+                                <td>{{ orderd_item[2] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
             <button type="submit" class="positive-button">Save Changes</button>
         </form>
