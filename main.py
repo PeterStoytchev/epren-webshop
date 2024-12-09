@@ -130,7 +130,7 @@ def admin_delete_image(item_id, slot):
 def admin_order_list():
     with get_cursor() as cursor:
         #TODO: Use customer_id to get customer name from customers table
-        cursor.execute('SELECT o.id, o.customer_id, SUM(oi.quantity * p.price) as total, o.description FROM orders o JOIN orders_items oi ON o.id = oi.order_id JOIN items p ON oi.item_id = p.id GROUP BY o.id')
+        cursor.execute('SELECT o.id, o.customer_id, ROUND(SUM(oi.quantity * p.price), 2) as total, o.description FROM orders o JOIN orders_items oi ON o.id = oi.order_id JOIN items p ON oi.item_id = p.id GROUP BY o.id')
         orders = cursor.fetchall()
 
     return render_template("admin_order_list.html", orders=orders)
@@ -138,7 +138,7 @@ def admin_order_list():
 @app.route('/admin/order_details/<int:order_id>', methods=["GET"])
 def admin_details_order(order_id):
     with get_cursor() as cursor:
-        cursor.execute('SELECT o.id, o.customer_id, SUM(oi.quantity * p.price) as total, o.description FROM orders o JOIN orders_items oi ON o.id = oi.order_id JOIN items p ON oi.item_id = p.id WHERE o.id = ?', (order_id,))
+        cursor.execute('SELECT o.id, o.customer_id, ROUND(SUM(oi.quantity * p.price), 2) as total, o.description FROM orders o JOIN orders_items oi ON o.id = oi.order_id JOIN items p ON oi.item_id = p.id WHERE o.id = ?', (order_id,))
         order = cursor.fetchone()
 
         ordered_items = cursor.execute('SELECT p.title, oi.quantity, p.price FROM orders_items oi JOIN items p ON oi.item_id = p.id WHERE oi.order_id = ?', (order_id,)).fetchall()
@@ -156,26 +156,28 @@ def admin_update_order(order_id):
 @app.route('/admin/order_add', methods=['POST', 'GET'])
 def admin_add_order():
     if request.method == 'POST':
-        title = request.form['title']
-        price = request.form['price']
-        quantity = request.form['quantity']
+        customer_id = request.form['customer']
         description = request.form['description']
 
-        if not title or not price or not quantity:
-            flash('Title, price, and quantity are required.', 'error')
-            return redirect(url_for('admin_add_order'))
-
-        try:
-            price = float(price)
-            quantity = int(quantity)
-        except ValueError:
-            flash('Invalid price or quantity.', 'error')
+        if not customer_id:
+            flash('Customer id is required.', 'error')
             return redirect(url_for('admin_add_order'))
 
         with get_cursor() as cursor:
             cursor.execute('''
-                INSERT INTO orders (title, price, quantity, description) VALUES (?, ?, ?, ?)
-            ''', (title, price, quantity, description))
+                INSERT INTO orders (customer_id, description) VALUES (?, ?)
+            ''', (customer_id, description))
+            order_id = cursor.execute('SELECT last_insert_rowid()').fetchone()[0]
+
+            items = []
+            for key, value in request.form.items():
+                complete_key = key.split('-')
+                if complete_key[0] == 'item' and complete_key[1] == 'id':
+                    item_id = int(request.form[f"item-id-{complete_key[2]}"])
+                    ammount = int(request.form[f"item-ammount-{complete_key[2]}"])
+                    items.append((order_id, item_id, ammount))
+
+            cursor.executemany('INSERT INTO orders_items (order_id, item_id, quantity) VALUES (?, ?, ?)', items)
 
         flash('New order added successfully!', 'success')
         return redirect(url_for('admin_order_list'))

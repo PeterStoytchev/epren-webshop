@@ -91,10 +91,10 @@ a:hover {
     font-weight: bold;
 }
 
-.generic-detail input[type="text"],
-.generic-detail input[type="number"],
-.generic-detail input[type="file"],
-.generic-detail textarea {
+input[type="text"],
+input[type="number"],
+input[type="file"],
+textarea {
     width: 100%;
     padding: 8px;
     margin: 5px 0;

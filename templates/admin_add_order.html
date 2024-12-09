@@ -12,14 +12,80 @@
     <div class="order-details">
         <h1>Add new order</h1>
         <form method="POST" action="{{ url_for('admin_add_order') }}" enctype="multipart/form-data">
-            <label for="customer">Customer:</label>
-            <input type="text" id="customer" name="customer" required><br>
-            
-            <label for="total">Total:</label>
-            <input type="number" id="total" name="total" required><br>
-            
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" required></textarea><br>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="customer">Customer:</label>
+                            <input type="text" id="customer" name="customer" required><br>
+                        </td>
+                        <td>
+                            <label for="description">Description:</label>
+                            <textarea id="description" name="description" required></textarea><br>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        
+            <br>
+            <h1>Items</h1>
+            <br>
+
+            <table class="items-table">
+                <tr>
+                    <th>Item ID</th>
+                    <th>Ammount</th>
+                </tr>
+                <tr>
+                </tr>
+            </table>
+
+            </div>
+            <button type="button" id="add-item-button" class="positive-button">Add item</button>
+            <script>
+                var itemCount = 1;
+                
+                function makeLabel(attribute) {
+                    const newitemLabelid = document.createElement('label');
+                    newitemLabelid.setAttribute('for', attribute + itemCount);
+
+                    return newitemLabelid;
+                }
+
+                function makeInput(attribute) {
+                    const newitemInput = document.createElement('input');
+                    newitemInput.setAttribute('type', 'number');
+                    newitemInput.setAttribute('id', attribute + itemCount);
+                    newitemInput.setAttribute('name', attribute + itemCount);
+
+                    return newitemInput;
+                }
+                
+                function makeRow(row, attribute) {
+                    const itemIdCell = document.createElement('td');
+                    itemIdCell.appendChild(makeLabel(attribute));
+                    itemIdCell.appendChild(makeInput(attribute));
+                    row.appendChild(itemIdCell);
+                }
+
+                document.getElementById('add-item-button').addEventListener('click', function() {
+                    const items_table = document.querySelector('.items-table');
+                    const newRow = document.createElement('tr');
+                    
+                    makeRow(newRow, 'item-id-');
+                    makeRow(newRow, 'item-ammount-');
+
+                    items_table.appendChild(newRow);
+
+                    itemCount = itemCount + 1;
+                });
+            </script>
             
             <button type="submit" class="positive-button">Add order</button>
         </form>
